@@ -3,6 +3,7 @@ var { graphqlHTTP } = require("express-graphql")
 var { buildSchema } = require("graphql")
 const crypto = require('crypto');
 const cors = require('cors');
+const socketIo = require('socket.io');
 
 // Construct a schema, using GraphQL schema language
 var schema = buildSchema(`
@@ -74,6 +75,8 @@ var root = {
       }
     });
 
+    io.emit('chatroom-'+roomId, 'new-message');
+
     return newMessage;
   },
   getUserById: ({ userId }) => {
@@ -132,7 +135,14 @@ var root = {
   }
 }
 
-var app = express()
+const app = express()
+const server = require('http').createServer(app);
+
+const io = socketIo(server, {
+  cors: {
+    origin: 'http://localhost:3000'
+  }
+})
 
 app.use(cors());
 
@@ -144,5 +154,15 @@ app.use(
     graphiql: true,
   })
 )
-app.listen(4000)
+
+io.on('connection', (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  // Handle disconnections
+  socket.on('disconnect', () => {
+    console.log(`User disconnected: ${socket.id}`);
+  })
+});
+
+server.listen(4000)
 console.log("Running a GraphQL API server at http://localhost:4000/graphql")
