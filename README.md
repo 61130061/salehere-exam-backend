@@ -10,7 +10,7 @@ Checkout frontend side [here](https://github.com/61130061/salehere-exam-fronted.
 - GraphQL
 - Server memory: database (because this a prototype)
 
-## Started Guide
+## Start Guide
 
 ```sh
 npm install
